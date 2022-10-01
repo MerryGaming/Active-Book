@@ -40,8 +40,6 @@ public class Book extends BaseValidator<Book> {
 
 
   @Column(name = "release_at")
-  @Timestamp
-  @JsonFormat(pattern = "yyyy.MM.dd  hh:mm:ss")
   private Date releaseAt;
 
   @Override

@@ -14,13 +14,17 @@ public class SearchSpecificationBuilder<T> {
     if (searchCriteriaList.size() == 0) {
       return null;
     }
+
     List<Specification<T>> specifications =
         searchCriteriaList.stream()
             .map(variable -> new SearchSpecification<T>(variable))
             .collect(Collectors.toList());
+
     Specification<T> result = specifications.get(0);
     for (int i = 1; i < searchCriteriaList.size(); i++) {
-      result = Specification.where(result).and(specifications.get(i));
+      result = Specification
+          .where(result)
+          .and(specifications.get(i));
     }
     return result;
   }

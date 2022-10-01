@@ -1,8 +1,8 @@
 package org.aibles.book.service.impl;
 
-import java.time.Instant;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
@@ -17,6 +17,7 @@ import org.aibles.book.exception.BadRequestBaseException;
 import org.aibles.book.exception.NotFoundBaseException;
 import org.aibles.book.repository.BookRepository;
 import org.aibles.book.service.BookService;
+import org.aibles.book.util.JobCheck;
 import org.aibles.book.util.SearchSpecificationBuilder;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -35,12 +36,9 @@ public class BookServiceImpl implements BookService {
     log.info("(create)create information book name: {}", request.getName());
     Book book = request.toBook();
     book.validateClient();
-    LocalTime timeNow = LocalTime.now();
-    if (book.getReleaseAt() <= ) {
-      book.setActive(true);
-    } else  (book.getReleaseAt() > timeNow) {
-      book.setActive(false);
-    }
+    book.setActive(
+        JobCheck.checkBookIsActive(book)
+    );
     return BookResponse.from(repository.save(book));
   }
 
@@ -48,9 +46,6 @@ public class BookServiceImpl implements BookService {
   @Transactional
   public MessageResponse deleteById(long id) {
     log.info("(deleteById)delete book by id: {}", id);
-    Book book = repository.findById(id).orElseThrow(() -> {
-      throw new BadRequestBaseException(id);
-    });
     repository.deleteById(id);
     return new MessageResponse("Successful delete!!!");
   }
@@ -59,10 +54,11 @@ public class BookServiceImpl implements BookService {
   @Transactional
   public BookResponse getById(long id) {
     log.info("(findById)get book by id: {}", id);
-    Book book = repository.findById(id).orElseThrow(() -> {
-      throw new NotFoundBaseException(id);
-    });
-    book.setActive(false);
+    Book book = repository
+        .findById(id)
+        .orElseThrow(() -> {
+          throw new NotFoundBaseException(id);
+        });
     return BookResponse.from(book);
   }
 
@@ -77,12 +73,11 @@ public class BookServiceImpl implements BookService {
   @Override
   @Transactional
   public List<BookResponse> search(SearchList searchList) {
-    log.info("(search)book add filter: {}",searchList);
-
-    SearchSpecificationBuilder<Book> builder = new SearchSpecificationBuilder<>(searchList.getSearch());
+    log.info("(search)book add filter: {}", searchList);
+    SearchSpecificationBuilder<Book> builder = new SearchSpecificationBuilder<>(
+        searchList.getSearch());
     Specification<Book> specification = builder.build();
     List<Book> books = repository.findAll(specification);
-
     return books.stream().map(BookResponse::from).collect(Collectors.toList());
   }
 
@@ -90,12 +85,16 @@ public class BookServiceImpl implements BookService {
   @Transactional
   public BookResponse updateById(long id, UpdateBookRequest request) {
     log.info("(update)update book by id");
-    Book bookCheck = repository.findById(id).orElseThrow(() -> {
-      throw new NotFoundBaseException(id);
-    });
+    Book bookCheck = repository
+        .findById(id)
+        .orElseThrow(() -> {
+          throw new NotFoundBaseException(id);
+        });
     Book book = request.toBook();
     book.setId(bookCheck.getId());
-    book.setActive(false);
+    book.setActive(
+        JobCheck.checkBookIsActive(book)
+    );
     return BookResponse.from(repository.save(book));
   }
 
@@ -103,19 +102,14 @@ public class BookServiceImpl implements BookService {
   @Transactional
   public MessageResponse jobCheckBook(long id) {
     log.info("(jobCheckBook)check book is active");
-
-    Book book = repository.findById(id).orElseThrow(() -> {
-      throw new NotFoundBaseException(id);
-    });
-
-    if (book.getReleaseAt() <= ) {
-      book.setActive(false);
-      log.info("Unreleased book!!");
-    } else {
-      book.setActive(true);
-      log.info("Book is released!!");
-    }
-
+    Book book = repository
+        .findById(id)
+        .orElseThrow(() -> {
+          throw new NotFoundBaseException(id);
+        });
+    book.setActive(
+        JobCheck.checkBookIsActive(book)
+    );
     return new MessageResponse("Check book is active successful!!!");
   }
 

@@ -57,6 +57,6 @@ public interface BookService {
    * @param id -id of the book to check active
    * @return - book is active or no active
    */
-  MessageResponse jobCheckBook(long id);
+ MessageResponse jobCheckBook(long id);
 
 }
