@@ -1,8 +1,5 @@
 package org.aibles.book.service.impl;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
@@ -13,7 +10,6 @@ import org.aibles.book.dto.request.UpdateBookRequest;
 import org.aibles.book.dto.response.BookResponse;
 import org.aibles.book.dto.response.MessageResponse;
 import org.aibles.book.entity.Book;
-import org.aibles.book.exception.BadRequestBaseException;
 import org.aibles.book.exception.NotFoundBaseException;
 import org.aibles.book.repository.BookRepository;
 import org.aibles.book.service.BookService;
@@ -46,6 +42,11 @@ public class BookServiceImpl implements BookService {
   @Transactional
   public MessageResponse deleteById(long id) {
     log.info("(deleteById)delete book by id: {}", id);
+    Book book = repository
+        .findById(id)
+        .orElseThrow(() -> {
+          throw new NotFoundBaseException(id);
+        });
     repository.deleteById(id);
     return new MessageResponse("Successful delete!!!");
   }
@@ -59,6 +60,9 @@ public class BookServiceImpl implements BookService {
         .orElseThrow(() -> {
           throw new NotFoundBaseException(id);
         });
+    book.setActive(
+        JobCheck.checkBookIsActive(book)
+    );
     return BookResponse.from(book);
   }
 
@@ -96,21 +100,6 @@ public class BookServiceImpl implements BookService {
         JobCheck.checkBookIsActive(book)
     );
     return BookResponse.from(repository.save(book));
-  }
-
-  @Override
-  @Transactional
-  public MessageResponse jobCheckBook(long id) {
-    log.info("(jobCheckBook)check book is active");
-    Book book = repository
-        .findById(id)
-        .orElseThrow(() -> {
-          throw new NotFoundBaseException(id);
-        });
-    book.setActive(
-        JobCheck.checkBookIsActive(book)
-    );
-    return new MessageResponse("Check book is active successful!!!");
   }
 
 

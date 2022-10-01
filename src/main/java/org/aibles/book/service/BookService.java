@@ -52,11 +52,4 @@ public interface BookService {
    */
   BookResponse updateById(long id, UpdateBookRequest request);
 
-  /**
-   * check book is active
-   * @param id -id of the book to check active
-   * @return - book is active or no active
-   */
- MessageResponse jobCheckBook(long id);
-
 }

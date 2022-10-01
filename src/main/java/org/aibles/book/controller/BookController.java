@@ -76,10 +76,5 @@ public class BookController {
     return service.updateById(id, request);
   }
 
-  @GetMapping("/check/{id}")
-  @ResponseStatus(HttpStatus.OK)
-  public MessageResponse jobCheckBook(@PathVariable("id") long id) {
-    log.info("(jobCheckBook)check book is active");
-    return service.jobCheckBook(id);
-  }
+
 }
