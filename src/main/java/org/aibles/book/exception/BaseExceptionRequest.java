@@ -7,6 +7,7 @@ public class BaseExceptionRequest extends RuntimeException{
   private int statusException;
   private String code;
   private Map<String, Object> params;
+  private Map<String, Object> errorMap;
 
   public int getStatusException() {
     return statusException;
@@ -30,6 +31,14 @@ public class BaseExceptionRequest extends RuntimeException{
 
   public void addParams(String key, Object value) {
     this.params.put(key, value);
+  }
+
+  public Map<String, Object> getErrorMap() {
+    return errorMap;
+  }
+
+  public void setErrorMap(Map<String, Object> errorMap) {
+    this.errorMap = errorMap;
   }
 
 }
