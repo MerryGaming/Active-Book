@@ -7,6 +7,7 @@ import org.aibles.book.dto.request.CreateBookRequest;
 import org.aibles.book.dto.request.UpdateBookRequest;
 import org.aibles.book.dto.response.BookResponse;
 import org.aibles.book.dto.response.MessageResponse;
+import org.aibles.book.entity.Book;
 
 public interface BookService {
 
@@ -51,5 +52,7 @@ public interface BookService {
    * @return - information of books new
    */
   BookResponse updateById(long id, UpdateBookRequest request);
+
+  void checkJob();
 
 }

@@ -1,5 +1,6 @@
 package org.aibles.book.service.impl;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
@@ -13,9 +14,10 @@ import org.aibles.book.entity.Book;
 import org.aibles.book.exception.NotFoundBaseException;
 import org.aibles.book.repository.BookRepository;
 import org.aibles.book.service.BookService;
-import org.aibles.book.util.JobCheck;
+import org.aibles.book.util.DateUtil;
 import org.aibles.book.util.SearchSpecificationBuilder;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Scheduled;
 
 @Slf4j
 public class BookServiceImpl implements BookService {
@@ -33,7 +35,7 @@ public class BookServiceImpl implements BookService {
     Book book = request.toBook();
     book.validateClient();
     book.setActive(
-        JobCheck.checkBookIsActive(book)
+        request.getReleaseAt().before(DateUtil.convertLocalDateToDate(LocalDate.now()))
     );
     return BookResponse.from(repository.save(book));
   }
@@ -60,9 +62,6 @@ public class BookServiceImpl implements BookService {
         .orElseThrow(() -> {
           throw new NotFoundBaseException(id);
         });
-    book.setActive(
-        JobCheck.checkBookIsActive(book)
-    );
     return BookResponse.from(book);
   }
 
@@ -96,10 +95,21 @@ public class BookServiceImpl implements BookService {
         });
     Book book = request.toBook();
     book.setId(bookCheck.getId());
-    book.setActive(
-        JobCheck.checkBookIsActive(book)
-    );
     return BookResponse.from(repository.save(book));
+  }
+
+  @Override
+  @Scheduled(cron = "0 0 8 * * ?")
+  public void checkJob() {
+    log.info("(checkJob)check job is active book every day");
+    List<Book> books = repository.findBookByReleaseAtAfter(DateUtil.convertLocalDateToDate(
+        LocalDate.now()));
+    books.forEach((book -> {
+      book.setActive(true);
+      repository.save(book);
+    }));
+    log.info("Check is active book successful!!!");
+
   }
 
 

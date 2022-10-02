@@ -1,6 +1,6 @@
 package org.aibles.book.dto.response;
 
-import java.sql.Date;
+import java.util.Date;
 import javax.validation.constraints.NotBlank;
 import lombok.Data;
 import org.aibles.book.entity.Book;
