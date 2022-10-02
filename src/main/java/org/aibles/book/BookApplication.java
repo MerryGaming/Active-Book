@@ -16,6 +16,6 @@ public class BookApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		log.info("Successfully run the project okr");
+		log.info("Successfully run the project book");
 	}
 }
