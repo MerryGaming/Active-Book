@@ -1,4 +1,4 @@
-package org.aibles.book.constant;
+package org.aibles.message.constant;
 
 import java.util.Arrays;
 import java.util.List;
